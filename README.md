@@ -1,127 +1,120 @@
-# 🧠 Legal Document Analysis System
+# ⚖ Legal Document Analysis System (LDA)
 
-A Natural Language Processing (NLP)-based web application to **classify legal documents** and **extract key named entities**.
+An NLP-powered web application that **classifies legal documents** and **extracts named entities** — with confidence scoring, PDF upload, and a JSON API.
 
-Built with **Python**, **Flask**, **SpaCy**, **NLTK**, and **scikit-learn**, this system helps automate legal document analysis — reducing manual review time and boosting productivity.
-
----
-
-## ✅ What the Project Does
-
-- It takes the text of a legal document as input.
-
-- It uses NLP and machine learning to understand and analyze the text.
-
-- It predicts what type of legal document it is — for example: a contract, a will, or a legal compliance form.
-
-- It also highlights important entities like names, dates, and organizations.
+Built with Python · Flask · spaCy · NLTK · scikit-learn
 
 ---
 
-## 📁 What Kind of Legal Documents It Understands
+## ✅ Features
 
-It can classify documents into 5 types:
-
--  Contracts
-
--  Wills and Estate Planning Documents
-
--  Business Formation Documents
-
--  Legal Compliance Documents
-
--  Intellectual Property Documents
+| Feature | Details |
+|---|---|
+| Document Classification | Identifies type (Contract, Will, IP, Compliance, Business Formation) |
+| Confidence Score | Probability of predicted class + top-3 breakdown |
+| Named Entity Recognition | Persons, Organisations, Dates, Locations, Laws, Money, and more |
+| PDF & TXT Upload | Upload files directly — no copy-paste needed |
+| JSON REST API | `POST /api/analyse` for programmatic access |
+| Health Check | `GET /health` — model/spaCy load status |
+| Modern UI | Dark terminal aesthetic, entity colour badges, confidence bar |
 
 ---
 
-## 🚀 Features
+## 🚀 Quick Start
 
-- 🔍 **Text Classification**: Identifies the type of legal document (e.g., Contract, Notice, Agreement, etc.)
-- 🧾 **Named Entity Recognition (NER)**: Highlights entities such as dates, names, and organizations
-- 🧼 **Text Preprocessing**: Includes tokenization, lemmatization, and stopword removal
-- 🌐 **Interactive Flask Web App**: Submit documents and get results instantly via a UI
-- 📊 **92% Classification Accuracy** using logistic regression on custom dataset
-
----
-
-## 🛠 Technologies Used
-
-- Python
-- Flask
-- scikit-learn
-- NLTK
-- SpaCy
-- HTML/CSS 
-
----
-
-## 📂 Project Structure
-
-LegalDocumentAnalyzer/
-
-├── app.py                          # Flask web application
-
-├── train_model.py                  # Script to train the ML model
-
-├── requirements.txt                # Project dependencies
-
-├── legal_documents_classification_excel.csv  # Dataset for training
-
-├── model/                          # Folder to save model and vectorizer
-
-│     ├── classifier.pkl              # Trained classification model
-
-│     └── vectorizer.pkl              # TF-IDF vectorizer
-
-├── templates/
-
-│     └── index.html                  # UI template for the web app
-
-└── utils/ 
-        └── preprocessing.py            # Text preprocessing and cleaning functions
-
----
-
-## 🧪 How to Run Locally
-
-### 1. Clone the Repository
-
-git clone https://github.com/Ashmittatia/Legal-Document-Analysis-System.git
-
-cd legal-doc-analyzer
-
-### 2. Install Dependencies
-
+```bash
+# 1. Install dependencies
 pip install -r requirements.txt
-
 python -m spacy download en_core_web_sm
 
-### 3. Train the Model
-
+# 2. Train the model  (requires the CSV dataset)
 python train_model.py
 
-### 4. Run the Web App
-
+# 3. Run the web app
 python app.py
+# → http://127.0.0.1:5000
+```
 
-Visit http://127.0.0.1:5000 in your browser to use the system.
+For production:
+```bash
+gunicorn -w 2 -b 0.0.0.0:8000 app:app
+```
 
-#### ✅ 92% classification accuracy on validation set
+---
 
-#### ⏱ 40% reduction in manual document review time
+## 📁 Project Structure
 
-#### 💼 Improved productivity for legal analysts by 30%
+```
+LDA/
+├── app.py                  # Flask app — classification + NER + routes
+├── train_model.py          # Training script with CV, metrics, confusion matrix
+├── requirements.txt        # Pinned dependencies
+├── model/
+│   ├── classifier.pkl      # Trained LogisticRegression
+│   ├── vectorizer.pkl      # TF-IDF vectorizer
+│   └── pipeline.pkl        # Full sklearn Pipeline (convenience)
+├── templates/
+│   └── index.html          # Dark-theme UI
+└── utils/
+    ├── preprocessing.py    # Tokenise · lemmatise · stopwords (NLTK)
+    └── text_cleaner.py     # Surface cleaning · boilerplate removal
+```
 
-### 📸 Demo
-Coming soon...
+---
 
-### 📄 License
-This project is licensed under the MIT License.
+## 🔌 API Usage
 
-### 🤝 Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+```bash
+curl -X POST http://localhost:5000/api/analyse \
+     -H "Content-Type: application/json" \
+     -d '{"text": "This Agreement is entered into by Acme Corp..."}'
+```
 
-### 💬 Contact
-Developed by **Ashmit Tatia**
-Email: ashmit789@gmail.com
-GitHub: @Ashmittatia
+Response:
+```json
+{
+  "prediction": "Contracts",
+  "confidence": 94.3,
+  "top3": [
+    {"label": "Contracts",                    "prob": 94.3},
+    {"label": "Business Formation Documents", "prob":  3.1},
+    {"label": "Legal Compliance Documents",   "prob":  1.8}
+  ],
+  "entities": [
+    {"label": "ORG", "friendly": "Organisation", "text": "Acme Corp", "color": "#e07b39"}
+  ],
+  "word_count": 8,
+  "char_count": 48
+}
+```
+
+---
+
+## 📊 Model Details
+
+- **Algorithm**: Logistic Regression (L2, lbfgs solver)
+- **Features**: TF-IDF up to bi-grams, `sublinear_tf=True`, `min_df=2`
+- **Evaluation**: 5-fold stratified cross-validation + held-out test set
+- **Training output**: accuracy, per-class F1, confusion matrix
+
+---
+
+## 🛠 Improvements Over v1
+
+- Confidence scores + top-3 class probabilities
+- PDF and .txt file upload support
+- JSON REST API (`/api/analyse`) + health endpoint (`/health`)
+- Legal-domain stopwords preserved during preprocessing
+- Stratified train/test split + cross-validation in training
+- Full classification report + confusion matrix printed during training
+- Lazy NLTK downloads (no slowdown on import)
+- `text_cleaner.py` now has useful boilerplate-removal utility
+- Dark UI with colour-coded entity badges, confidence meter, char counter, spinner
+
+---
+
+## 👤 Author
+
+**Ashmit Tatia** · ashmit789@gmail.com · [@Ashmittatia](https://github.com/Ashmittatia)
+
+MIT License
