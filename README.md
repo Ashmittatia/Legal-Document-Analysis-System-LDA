@@ -18,9 +18,15 @@
 
 ## 📸 UI Preview
 
+<img width="1197" height="586" alt="image" src="https://github.com/user-attachments/assets/ccfe0eca-e43a-436e-90c3-218e1c999676" />
+
+&nbsp;
 | Document Classification | Named Entity Extraction |
 |------------------------|------------------------|
 | Predicted category · confidence bar · top-3 breakdown | Colour-coded entity badges · type labels · deduplication |
+&nbsp;
+<img width="1168" height="688" alt="image" src="https://github.com/user-attachments/assets/35366449-fe3d-4ab2-939c-4655d8fe555c" />
+<img width="1202" height="443" alt="image" src="https://github.com/user-attachments/assets/5c73b9a9-f4e4-4a92-8e87-e85697c178f7" />
 
 ---
 
